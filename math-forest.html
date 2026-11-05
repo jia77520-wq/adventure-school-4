@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#172554">
+<title>冒險學園｜數學森林試玩版</title>
+<style>
+:root{--navy:#172554;--blue:#2563eb;--gold:#f59e0b;--green:#15803d;--paper:#fffdf5;--line:#dbeafe}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;color:var(--navy);background:linear-gradient(160deg,#dbeafe,#f0fdf4 55%,#fef3c7);min-height:100vh}
+header{padding:24px 16px;text-align:center;color:white;background:linear-gradient(120deg,#172554,#1d4ed8 60%,#7c3aed)}
+header h1{font-size:clamp(26px,6vw,38px);margin:0}header p{margin:8px 0 0;opacity:.9}
+main{max-width:850px;margin:auto;padding:14px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}.stat,.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 6px 18px #1725540b}.stat{text-align:center;font-weight:800}.stat span{display:block;font-size:22px;margin-top:4px}
+h2{margin:4px 0 12px;font-size:22px}.muted{color:#64748b;font-size:14px;line-height:1.6}.hero{background:linear-gradient(135deg,#dcfce7,#fef3c7);border:2px solid #bbf7d0;border-radius:20px;padding:18px;margin-bottom:12px}.hero .emoji{font-size:42px}
+button{font:inherit;cursor:pointer;border:0;border-radius:14px;padding:13px 16px;font-weight:800}.primary{background:var(--blue);color:white}.gold{background:#fbbf24;color:#422006}.soft{background:#e2e8f0;color:#1e293b}.danger{background:#fee2e2;color:#991b1b}.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.btnrow button{flex:1}
+.hidden{display:none!important}.mapgrid{display:grid;grid-template-columns:1fr;gap:10px}.stage{display:flex;align-items:center;gap:14px;text-align:left;background:#f0fdf4;border:2px solid #86efac;color:#14532d;width:100%;padding:16px}.stage .big{font-size:34px}.stage small{display:block;font-weight:500;color:#64748b;margin-top:4px}
+.progress{height:12px;background:#e2e8f0;border-radius:20px;overflow:hidden;margin:12px 0}.bar{height:100%;background:linear-gradient(90deg,#22c55e,#84cc16);width:0;transition:width .2s}
+.qtext{font-size:clamp(21px,5vw,28px);font-weight:900;line-height:1.5;margin:18px 0}.answers{display:grid;grid-template-columns:1fr 1fr;gap:9px}.answer{background:#f8fafc;border:2px solid #cbd5e1;text-align:left;min-height:62px;color:var(--navy)}.answer:disabled{opacity:1}.answer.ok{background:#dcfce7;border-color:#22c55e}.answer.bad{background:#fee2e2;border-color:#ef4444}.feedback{font-weight:850;margin-top:14px;min-height:26px}.lootgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.loot{background:#f8fafc;border:1px solid #e2e8f0;border-radius:15px;padding:14px;text-align:center}.loot b{display:block;font-size:30px}.loot small{color:#64748b}
+input[type=file]{max-width:100%}.notice{background:#eff6ff;border-radius:12px;padding:10px;color:#1e40af;font-size:13px}
+@media(min-width:620px){.mapgrid{grid-template-columns:1fr 1fr}.lootgrid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header><h1>🧭 國小冒險學園</h1><p>三年級・數學森林｜第一個完整闖關示範</p></header>
+<main>
+<div class="stats">
+ <div class="stat">⭐ 經驗值<span id="xp">0</span></div>
+ <div class="stat">🪙 金幣<span id="coins">0</span></div>
+ <div class="stat">🏅 等級<span id="level">1</span></div>
+</div>
+
+<section id="home" class="card">
+ <div class="hero"><div class="emoji">🌳🦊</div><h2>歡迎來到數學森林！</h2><p>完成 10 道數學挑戰，答對至少 8 題，就能打敗森林魔王、打開寶箱，獲得收藏獎勵！</p></div>
+ <h2>🗺️ 冒險地圖</h2>
+ <div class="mapgrid">
+  <button class="stage" onclick="startGame()"><span class="big">🌲</span><span><strong>第一關：森林數學試煉</strong><small>三年級數學・10 題・答對 8 題過關</small></span></button>
+  <div class="stage" style="opacity:.55"><span class="big">🏞️</span><span><strong>第二關：河谷寶藏</strong><small>完成第一關後，未來版本解鎖</small></span></div>
+ </div>
+ <p class="muted">這是第一個可玩的完整示範關卡。之後會把同一套玩法擴充到其他年級與科目。</p>
+ <div class="btnrow"><button class="soft" onclick="showCollection()">🎒 我的收藏</button><button class="soft" onclick="showSave()">📦 存檔管理</button></div>
+</section>
+
+<section id="game" class="card hidden">
+ <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><strong>🌲 森林數學試煉</strong><span id="counter" class="muted"></span></div>
+ <div class="progress"><div id="bar" class="bar"></div></div>
+ <div id="qtext" class="qtext"></div><div id="answers" class="answers"></div>
+ <div id="feedback" class="feedback"></div><p id="explain" class="muted"></p>
+ <div class="btnrow"><button id="next" class="primary hidden" onclick="nextQuestion()">下一題 ➜</button><button class="soft" onclick="goHome()">暫停並回地圖</button></div>
+</section>
+
+<section id="result" class="card hidden">
+ <div class="hero"><div class="emoji" id="resultEmoji">🐉</div><h2 id="resultTitle">魔王挑戰結果</h2><p id="resultText"></p></div>
+ <p id="rewardText" class="notice"></p>
+ <div class="btnrow"><button class="primary" onclick="showCollection()">查看我的收藏</button><button class="soft" onclick="goHome()">回冒險地圖</button></div>
+</section>
+
+<section id="collection" class="card hidden">
+ <h2>🎒 勇者收藏圖鑑</h2><p class="muted">完成關卡、打開寶箱，就能把獎勵收藏起來。</p>
+ <h3>🐾 寵物夥伴</h3><div id="pets" class="lootgrid"></div>
+ <h3>⚔️ 裝備收藏</h3><div id="gear" class="lootgrid"></div>
+ <div class="btnrow"><button class="soft" onclick="goHome()">回冒險地圖</button></div>
+</section>
+
+<section id="save" class="card hidden">
+ <h2>📦 遊戲存檔管理</h2>
+ <p>遊戲會自動保存在目前手機的瀏覽器。換手機或換瀏覽器前，請先匯出存檔。</p>
+ <div class="btnrow"><button class="primary" onclick="exportSave()">⬇️ 匯出存檔</button><button class="soft" onclick="document.getElementById('importFile').click()">⬆️ 匯入存檔</button></div>
+ <input id="importFile" type="file" accept=".json,application/json" class="hidden" onchange="importSave(event)">
+ <p class="notice">提醒：請妥善保管匯出的 JSON 檔。清除瀏覽器網站資料前也請先匯出。匯入會以檔案內容取代目前這台裝置的遊戲紀錄。</p>
+ <div class="btnrow"><button class="soft" onclick="goHome()">回冒險地圖</button></div>
+</section>
+</main>
+<script>
+const questions=[
+ {q:"248 + 136 = ?",a:["374","384","394","404"],c:1,e:"248 + 100 = 348，再加 36 = 384。"},
+ {q:"500 - 275 = ?",a:["215","225","235","245"],c:1,e:"500 - 200 = 300，300 - 75 = 225。"},
+ {q:"一盒彩色筆有 12 枝，買了 4 盒共有幾枝？",a:["36枝","42枝","48枝","52枝"],c:2,e:"12 × 4 = 48 枝。"},
+ {q:"36 顆糖果平分給 6 個人，每人幾顆？",a:["5顆","6顆","7顆","8顆"],c:1,e:"36 ÷ 6 = 6 顆。"},
+ {q:"哪一個數字最接近 700？",a:["689","620","750","599"],c:0,e:"689 和 700 相差 11，是選項中最接近的。"},
+ {q:"一條緞帶長 2 公尺 30 公分，等於幾公分？",a:["23公分","203公分","230公分","2300公分"],c:2,e:"1 公尺 = 100 公分，所以 200 + 30 = 230 公分。"},
+ {q:"下午 2 時 15 分再過 30 分鐘是幾時幾分？",a:["2時35分","2時45分","3時15分","3時45分"],c:1,e:"15 分 + 30 分 = 45 分，所以是下午 2 時 45 分。"},
+ {q:"長方形長 8 公分、寬 3 公分，周長是多少？",a:["11公分","22公分","24公分","28公分"],c:1,e:"周長 = (8 + 3) × 2 = 22 公分。"},
+ {q:"下列哪個分數表示把一個蛋糕平均分成 4 份後的 1 份？",a:["1/2","1/3","1/4","4/1"],c:2,e:"平均分成 4 份，取其中 1 份就是 1/4。"},
+ {q:"小明有 85 元，買一本 38 元的筆記本，還剩多少元？",a:["37元","47元","53元","57元"],c:1,e:"85 - 38 = 47 元。"}
+];
+const petRewards=[{id:"fox",icon:"🦊",name:"森林小狐",desc:"第一關寶箱限定夥伴"},{id:"owl",icon:"🦉",name:"智慧貓頭鷹",desc:"勇者的學習夥伴"},{id:"slime",icon:"🟢",name:"果凍史萊姆",desc:"軟Q的森林居民"}];
+const gearRewards=[{id:"sword",icon:"🗡️",name:"勇者木劍"},{id:"shield",icon:"🛡️",name:"葉片盾牌"},{id:"gem",icon:"💎",name:"森林寶石"}];
+const fresh={xp:0,coins:0,cleared:false,pets:[],gear:[],best:0};
+let state;try{state={...fresh,...JSON.parse(localStorage.getItem("adventure_rpg_v1")||"{}")}}catch(e){state={...fresh}}
+let run=[],pos=0,score=0,answered=false;
+const $=id=>document.getElementById(id);
+function persist(){localStorage.setItem("adventure_rpg_v1",JSON.stringify(state));stats()}
+function stats(){$("xp").textContent=state.xp;$("coins").textContent=state.coins;$("level").textContent=Math.floor(state.xp/100)+1}
+function hideAll(){["home","game","result","collection","save"].forEach(id=>$(id).classList.add("hidden"))}
+function goHome(){hideAll();$("home").classList.remove("hidden");stats()}
+function startGame(){run=[...questions].sort(()=>Math.random()-.5);pos=0;score=0;hideAll();$("game").classList.remove("hidden");draw()}
+function draw(){answered=false;const q=run[pos];$("counter").textContent=`第 ${pos+1} / 10 題｜目前答對 ${score} 題`;$("bar").style.width=(pos/10*100)+"%";$("qtext").textContent=q.q;$("feedback").textContent="";$("explain").textContent="";$("next").classList.add("hidden");$("answers").innerHTML="";q.a.forEach((v,i)=>{const b=document.createElement("button");b.className="answer";b.textContent="ABCD"[i]+"．"+v;b.onclick=()=>choose(i);$("answers").appendChild(b)})}
+function choose(n){if(answered)return;answered=true;const q=run[pos],ok=n===q.c;[...$("answers").children].forEach((b,i)=>{b.disabled=true;if(i===q.c)b.classList.add("ok");else if(i===n)b.classList.add("bad")});if(ok){score++;state.xp+=10;state.coins+=3;$("feedback").textContent="🎉 答對了！+10 經驗值、+3 金幣"}else{$("feedback").textContent="💡 再接再厲！正確答案是 "+ "ABCD"[q.c];} $("explain").textContent=q.e;persist();$("next").classList.remove("hidden");$("next").textContent=pos===9?"查看魔王挑戰結果 ➜":"下一題 ➜"}
+function nextQuestion(){if(pos<9){pos++;draw()}else finish()}
+function finish(){hideAll();$("result").classList.remove("hidden");$("bar").style.width="100%";state.best=Math.max(state.best,score);if(score>=8){state.cleared=true;state.coins+=20;state.xp+=30;const p=petRewards[Math.floor(Math.random()*petRewards.length)],g=gearRewards[Math.floor(Math.random()*gearRewards.length)];if(!state.pets.includes(p.id))state.pets.push(p.id);if(!state.gear.includes(g.id))state.gear.push(g.id);$("resultEmoji").textContent="🏆";$("resultTitle").textContent="太厲害了！擊敗森林魔王！";$("resultText").textContent=`你答對 ${score} / 10 題，成功通過森林數學試煉！`;$("rewardText").textContent=`寶箱獎勵：🪙 20 金幣、⭐ 30 經驗值、${p.icon} ${p.name}、${g.icon} ${g.name}。重複獲得的收藏不會重複增加。`}else{$("resultEmoji").textContent="🌱";$("resultTitle").textContent="再練習一次就會更好！";$("resultText").textContent=`你答對 ${score} / 10 題，還差一點點就能通過（需要 8 題）。`;$("rewardText").textContent="本次獲得的答題經驗值與金幣已保存。再挑戰一次，打敗森林魔王吧！"}persist()}
+function showCollection(){hideAll();$("collection").classList.remove("hidden");$("pets").innerHTML=petRewards.map(x=>`<div class="loot"><b>${state.pets.includes(x.id)?x.icon:"❔"}</b><strong>${state.pets.includes(x.id)?x.name:"尚未收集"}</strong><small>${x.desc}</small></div>`).join("");$("gear").innerHTML=gearRewards.map(x=>`<div class="loot"><b>${state.gear.includes(x.id)?x.icon:"❔"}</b><strong>${state.gear.includes(x.id)?x.name:"尚未收集"}</strong></div>`).join("")}
+function showSave(){hideAll();$("save").classList.remove("hidden")}
+function exportSave(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="冒險學園存檔.json";a.click();URL.revokeObjectURL(url)}
+function importSave(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(typeof d.xp!=="number"||typeof d.coins!=="number"||!Array.isArray(d.pets)||!Array.isArray(d.gear))throw Error();state={...fresh,...d};persist();alert("存檔匯入成功！");goHome()}catch(e){alert("這個存檔檔案格式不正確，請選擇冒險學園匯出的 JSON 檔。")}ev.target.value=""};r.readAsText(f)}
+stats();
+</script>
+</body></html>
