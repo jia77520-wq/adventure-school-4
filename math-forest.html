@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#172554">
-<title>冒險學園｜數學森林試玩版</title>
+<title>冒險學園｜數學森林前三關</title>
 <style>
 :root{--navy:#172554;--blue:#2563eb;--gold:#f59e0b;--green:#15803d;--paper:#fffdf5;--line:#dbeafe}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;color:var(--navy);background:linear-gradient(160deg,#dbeafe,#f0fdf4 55%,#fef3c7);min-height:100vh}
@@ -21,7 +21,7 @@ input[type=file]{max-width:100%}.notice{background:#eff6ff;border-radius:12px;pa
 </style>
 </head>
 <body>
-<header><h1>🧭 國小冒險學園</h1><p>三年級・數學森林｜第一個完整闖關示範</p></header>
+<header><h1>🧭 國小冒險學園</h1><p>三年級・數學森林｜前三關冒險版</p></header>
 <main>
 <div class="stats">
  <div class="stat">⭐ 經驗值<span id="xp">0</span></div>
@@ -30,13 +30,14 @@ input[type=file]{max-width:100%}.notice{background:#eff6ff;border-radius:12px;pa
 </div>
 
 <section id="home" class="card">
- <div class="hero"><div class="emoji">🌳🦊</div><h2>歡迎來到數學森林！</h2><p>完成第一關的 10 道挑戰，再前往第二關挑戰 15 道進階題目！每關都有魔王與寶箱獎勵。</p></div>
+ <div class="hero"><div class="emoji">🌳🦊</div><h2>歡迎來到數學森林！</h2><p>完成森林與河谷的挑戰，再前往第三關迷霧山谷！每關都有新題目、魔王與寶箱獎勵。</p></div>
  <h2>🗺️ 冒險地圖</h2>
  <div class="mapgrid">
   <button class="stage" onclick="startGame()"><span class="big">🌲</span><span><strong>第一關：森林數學試煉</strong><small>三年級數學・10 題・答對 8 題過關</small></span></button>
   <button id="stage2Button" class="stage" style="opacity:.55" onclick="startGame(2)" disabled><span class="big">🏞️</span><span><strong>第二關：河谷寶藏 🔒</strong><small>先通過第一關即可解鎖｜15 題・答對 12 題過關</small></span></button>
+  <button id="stage3Button" class="stage" style="opacity:.55" onclick="startGame(3)" disabled><span class="big">🌫️</span><span><strong>第三關：迷霧山谷 🔒</strong><small>先通過第二關即可解鎖｜15 題・答對 12 題過關</small></span></button>
  </div>
- <p class="muted">目前開放三年級數學森林的前兩關。通關紀錄會自動保存在這台手機的瀏覽器。</p>
+ <p class="muted">目前開放三年級數學森林的前三關。通關紀錄會自動保存在這台手機的瀏覽器。</p>
  <div class="btnrow"><button class="soft" onclick="showCollection()">🎒 我的收藏</button><button class="soft" onclick="showSave()">📦 存檔管理</button></div>
 </section>
 
@@ -100,9 +101,29 @@ const secondQuestions=[
  {q:"有 72 張貼紙，平均分給 9 個小朋友，每人幾張？",a:["7張","8張","9張","10張"],c:1,e:"72 ÷ 9 = 8 張。"},
  {q:"遊覽車原有 42 人，第一站下車 8 人，第二站上車 15 人，現在有幾人？",a:["39人","49人","55人","65人"],c:1,e:"42 - 8 + 15 = 49 人。"}
 ];
+
+const thirdQuestions=[
+ {q:"一個倉庫有 8 箱蘋果，每箱 24 顆，送出 56 顆後還剩幾顆？",a:["126顆","136顆","146顆","156顆"],c:1,e:"24 × 8 = 192，192 - 56 = 136 顆。"},
+ {q:"936 ÷ 3 = ?",a:["302","312","322","332"],c:1,e:"900 ÷ 3 = 300，36 ÷ 3 = 12，所以是 312。"},
+ {q:"小華有 500 元，買了 3 本各 68 元的書，還剩多少元？",a:["286元","296元","306元","316元"],c:1,e:"68 × 3 = 204，500 - 204 = 296 元。"},
+ {q:"一個長方形長 15 公分、寬 8 公分，周長是多少？",a:["23公分","38公分","46公分","120公分"],c:2,e:"(15 + 8) × 2 = 46 公分。"},
+ {q:"2 公升 350 毫升等於幾毫升？",a:["235毫升","2035毫升","2350毫升","2500毫升"],c:2,e:"2 公升 = 2000 毫升，2000 + 350 = 2350 毫升。"},
+ {q:"一條緞帶長 5 公尺，剪去 185 公分，還剩幾公分？",a:["215公分","285公分","315公分","385公分"],c:2,e:"5 公尺 = 500 公分，500 - 185 = 315 公分。"},
+ {q:"下面哪個分數最大？",a:["1/2","1/4","1/8","1/3"],c:0,e:"分子相同時，分母越小，分數越大；1/2 最大。"},
+ {q:"上午 9 時 40 分到上午 11 時 15 分，經過多久？",a:["1小時25分","1小時35分","1小時45分","2小時25分"],c:1,e:"9:40 到 10:40 是 1 小時，再到 11:15 是 35 分鐘。"},
+ {q:"一個正方形周長是 64 公分，邊長是多少？",a:["8公分","12公分","16公分","32公分"],c:2,e:"正方形四邊相等，64 ÷ 4 = 16 公分。"},
+ {q:"圖書館有 125 本故事書，又買進 4 箱，每箱 36 本，現在共有幾本？",a:["259本","269本","279本","289本"],c:1,e:"36 × 4 = 144，125 + 144 = 269 本。"},
+ {q:"把 3 個披薩平均分給 6 個人，每人分到幾個披薩？",a:["1/2個","1/3個","1/4個","2個"],c:0,e:"3 ÷ 6 = 3/6 = 1/2 個。"},
+ {q:"一場電影下午 2 時 25 分開始，片長 95 分鐘，幾時結束？",a:["3時50分","4時","4時10分","4時20分"],c:1,e:"95 分鐘是 1 小時 35 分鐘，2:25 + 1:35 = 4:00。"},
+ {q:"有 864 張卡片，平均裝入 8 個盒子，每盒幾張？",a:["98張","108張","118張","128張"],c:1,e:"864 ÷ 8 = 108 張。"},
+ {q:"一塊長方形菜園長 18 公尺、寬 7 公尺，周長是多少公尺？",a:["25公尺","36公尺","50公尺","126公尺"],c:2,e:"(18 + 7) × 2 = 50 公尺。"},
+ {q:"媽媽買了 2 公斤 400 公克的米，又買 1 公斤 850 公克，總共幾公克？",a:["3250公克","4150公克","4250公克","4350公克"],c:2,e:"2400 + 1850 = 4250 公克。"}
+];
+
 const petRewards=[{id:"fox",icon:"🦊",name:"森林小狐",desc:"第一關寶箱限定夥伴"},{id:"owl",icon:"🦉",name:"智慧貓頭鷹",desc:"勇者的學習夥伴"},{id:"slime",icon:"🟢",name:"果凍史萊姆",desc:"軟Q的森林居民"}];
-const gearRewards=[{id:"sword",icon:"🗡️",name:"勇者木劍"},{id:"shield",icon:"🛡️",name:"葉片盾牌"},{id:"gem",icon:"💎",name:"森林寶石"}];
-const fresh={xp:0,coins:0,cleared:false,secondCleared:false,pets:[],gear:[],best:0,best2:0};
+const gearRewards=[{id:"sword",icon:"🗡️",name:"勇者木劍"},{id:"shield",icon:"🛡️",name:"葉片盾牌"},{id:"gem",icon:"💎",name:"森林寶石"},{id:"mistcloak",icon:"🧥",name:"迷霧披風"}];
+const thirdPet={id:"mistdragon",icon:"🐉",name:"迷霧幼龍",desc:"第三關迷霧山谷限定夥伴"};
+const fresh={xp:0,coins:0,cleared:false,secondCleared:false,thirdCleared:false,pets:[],gear:[],best:0,best2:0,best3:0};
 let state;try{state={...fresh,...JSON.parse(localStorage.getItem("adventure_rpg_v1")||"{}")}}catch(e){state={...fresh}}
 let run=[],pos=0,score=0,answered=false,activeStage=1,activeQuestions=questions;
 const $=id=>document.getElementById(id);
@@ -111,15 +132,18 @@ function stats(){$("xp").textContent=state.xp;$("coins").textContent=state.coins
 function hideAll(){["home","game","result","collection","save"].forEach(id=>$(id).classList.add("hidden"))}
 function goHome(){hideAll();$("home").classList.remove("hidden");stats();refreshMap()}
 function refreshMap(){
- const b=$("stage2Button");
- if(state.cleared){b.disabled=false;b.style.opacity="1";b.querySelector("strong").textContent="第二關：河谷寶藏 🔓";b.querySelector("small").textContent="三年級數學・15 題・答對 12 題過關";}
+ const b2=$("stage2Button"),b3=$("stage3Button");
+ if(state.cleared){b2.disabled=false;b2.style.opacity="1";b2.querySelector("strong").textContent="第二關：河谷寶藏 🔓";b2.querySelector("small").textContent="三年級數學・15 題・答對 12 題過關";}
+ if(state.secondCleared){b3.disabled=false;b3.style.opacity="1";b3.querySelector("strong").textContent="第三關：迷霧山谷 🔓";b3.querySelector("small").textContent="三年級數學・15 題・答對 12 題過關";}
 }
 function startGame(stage=1){
+ if(stage===2&&!state.cleared){alert("先通過第一關，才能解鎖河谷寶藏喔！");return;}
+ if(stage===3&&!state.secondCleared){alert("先通過第二關，才能解鎖迷霧山谷喔！");return;}
  activeStage=stage;
- activeQuestions=stage===1?questions:secondQuestions;
+ activeQuestions=stage===1?questions:(stage===2?secondQuestions:thirdQuestions);
  run=[...activeQuestions].sort(()=>Math.random()-.5);
  pos=0;score=0;hideAll();$("game").classList.remove("hidden");
- $("gameTitle").textContent=stage===1?"🌲 森林數學試煉":"🏞️ 河谷寶藏挑戰";
+ $("gameTitle").textContent=stage===1?"🌲 森林數學試煉":(stage===2?"🏞️ 河谷寶藏挑戰":"🌫️ 迷霧山谷試煉");
  draw();
 }
 function draw(){
@@ -143,23 +167,28 @@ function nextQuestion(){if(pos<run.length-1){pos++;draw()}else finish()}
 function finish(){
  hideAll();$("result").classList.remove("hidden");$("bar").style.width="100%";
  const total=run.length,needed=activeStage===1?8:12;
- if(activeStage===1)state.best=Math.max(state.best,score);else state.best2=Math.max(state.best2||0,score);
+ if(activeStage===1)state.best=Math.max(state.best,score);
+ else if(activeStage===2)state.best2=Math.max(state.best2||0,score);
+ else state.best3=Math.max(state.best3||0,score);
  if(score>=needed){
-  const alreadyCleared=activeStage===1?state.cleared:state.secondCleared;
-  if(activeStage===1)state.cleared=true;else state.secondCleared=true;
+  const clearedKey=activeStage===1?"cleared":(activeStage===2?"secondCleared":"thirdCleared");
+  const alreadyCleared=!!state[clearedKey];state[clearedKey]=true;
   if(!alreadyCleared){
-   const p=petRewards[Math.floor(Math.random()*petRewards.length)],g=gearRewards[Math.floor(Math.random()*gearRewards.length)];
-   const bonusCoins=activeStage===1?20:35,bonusXp=activeStage===1?30:50;
+   const p=activeStage===3?thirdPet:petRewards[Math.floor(Math.random()*petRewards.length)];
+   const g=activeStage===3?gearRewards[3]:gearRewards[Math.floor(Math.random()*gearRewards.length)];
+   const bonusCoins=activeStage===1?20:(activeStage===2?35:50);
+   const bonusXp=activeStage===1?30:(activeStage===2?50:70);
    state.coins+=bonusCoins;state.xp+=bonusXp;
    if(!state.pets.includes(p.id))state.pets.push(p.id);
    if(!state.gear.includes(g.id))state.gear.push(g.id);
-   $("rewardText").textContent=`首次通關寶箱：🪙 ${bonusCoins} 金幣、⭐ ${bonusXp} 經驗值、${p.icon} ${p.name}、${g.icon} ${g.name}。重複獲得的收藏不會重複增加。`;
+   $("rewardText").textContent=`首次通關寶箱：🪙 ${bonusCoins} 金幣、⭐ ${bonusXp} 經驗值、${p.icon} ${p.name}、${g.icon} ${g.name}。`;
   }else{
-   $("rewardText").textContent="你再次成功通關！本次答題獲得的經驗值與金幣已保存，首次通關寶箱已領取過。";
+   $("rewardText").textContent="你再次成功通關！本次答題經驗值與金幣已保存，首次通關寶箱已領取過。";
   }
   $("resultEmoji").textContent="🏆";
-  $("resultTitle").textContent=activeStage===1?"太厲害了！擊敗森林魔王！":"太厲害了！找到河谷寶藏！";
-  $("resultText").textContent=`你答對 ${score} / ${total} 題，成功通過${activeStage===1?"森林數學試煉":"河谷寶藏挑戰"}！`;
+  $("resultTitle").textContent=activeStage===1?"太厲害了！擊敗森林魔王！":(activeStage===2?"太厲害了！找到河谷寶藏！":"太厲害了！突破迷霧山谷！");
+  const stageName=activeStage===1?"森林數學試煉":(activeStage===2?"河谷寶藏挑戰":"迷霧山谷試煉");
+  $("resultText").textContent=`你答對 ${score} / ${total} 題，成功通過${stageName}！`;
  }else{
   $("resultEmoji").textContent="🌱";$("resultTitle").textContent="再練習一次就會更好！";
   $("resultText").textContent=`你答對 ${score} / ${total} 題，還差一點點就能通過（需要 ${needed} 題）。`;
