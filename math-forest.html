@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#172554">
-<title>冒險學園｜數學森林前三關</title>
+<title>冒險學園｜前三關＋冒險商店</title>
 <style>
 :root{--navy:#172554;--blue:#2563eb;--gold:#f59e0b;--green:#15803d;--paper:#fffdf5;--line:#dbeafe}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;color:var(--navy);background:linear-gradient(160deg,#dbeafe,#f0fdf4 55%,#fef3c7);min-height:100vh}
@@ -33,12 +33,14 @@ input[type=file]{max-width:100%}.notice{background:#eff6ff;border-radius:12px;pa
  <div class="hero"><div class="emoji">🌳🦊</div><h2>歡迎來到數學森林！</h2><p>完成森林與河谷的挑戰，再前往第三關迷霧山谷！每關都有新題目、魔王與寶箱獎勵。</p></div>
  <h2>🗺️ 冒險地圖</h2>
  <div class="mapgrid">
-  <button class="stage" onclick="startGame()"><span class="big">🌲</span><span><strong>第一關：森林數學試煉</strong><small>三年級數學・10 題・答對 8 題過關</small></span></button>
+  <button class="stage" onclick="startGame()"><span class="big">🌲</span><span><strong>第一關：森林數學試煉</strong><small>三年級數學・10 題・答對 8 題過關｜可重複挑戰</small></span></button>
   <button id="stage2Button" class="stage" style="opacity:.55" onclick="startGame(2)" disabled><span class="big">🏞️</span><span><strong>第二關：河谷寶藏 🔒</strong><small>先通過第一關即可解鎖｜15 題・答對 12 題過關</small></span></button>
   <button id="stage3Button" class="stage" style="opacity:.55" onclick="startGame(3)" disabled><span class="big">🌫️</span><span><strong>第三關：迷霧山谷 🔒</strong><small>先通過第二關即可解鎖｜15 題・答對 12 題過關</small></span></button>
  </div>
  <p class="muted">目前開放三年級數學森林的前三關。通關紀錄會自動保存在這台手機的瀏覽器。</p>
- <div class="btnrow"><button class="soft" onclick="showCollection()">🎒 我的收藏</button><button class="soft" onclick="showSave()">📦 存檔管理</button></div>
+ <div class="btnrow"><button class="gold" onclick="showShop()">🏪 冒險商店</button><button class="soft" onclick="showCollection()">🎒 我的收藏</button><button class="soft" onclick="showSave()">📦 存檔管理</button></div>
+ <section class="hero" style="margin-top:14px"><h2>📅 每日冒險任務</h2><p id="dailyText" class="muted"></p><p id="streakText" class="muted"></p><div class="btnrow"><button id="dailyClaim" class="gold" onclick="claimDaily()">領取每日獎勵</button><button id="streakClaim" class="soft" onclick="claimStreak()">領取七日獎勵</button></div></section>
+ <section class="card" style="margin-top:12px"><h2>🏆 成就</h2><p id="achievementText" class="muted"></p></section>
 </section>
 
 <section id="game" class="card hidden">
@@ -52,7 +54,16 @@ input[type=file]{max-width:100%}.notice{background:#eff6ff;border-radius:12px;pa
 <section id="result" class="card hidden">
  <div class="hero"><div class="emoji" id="resultEmoji">🐉</div><h2 id="resultTitle">魔王挑戰結果</h2><p id="resultText"></p></div>
  <p id="rewardText" class="notice"></p>
- <div class="btnrow"><button class="primary" onclick="showCollection()">查看我的收藏</button><button class="soft" onclick="goHome()">回冒險地圖</button></div>
+ <div class="btnrow"><button class="primary" onclick="startGame(activeStage)">🔁 再挑戰本關</button><button class="soft" onclick="showCollection()">查看我的收藏</button><button class="soft" onclick="goHome()">回冒險地圖</button></div>
+</section>
+
+<section id="shop" class="card hidden">
+ <h2>🏪 冒險商店</h2><p class="notice">金幣可購買收藏與輔助道具。裝備以收藏外觀為主，不會直接降低答題難度。</p><div class="lootgrid">
+ <div class="loot"><b>🥚</b><strong>寵物蛋</strong><small>100 金幣｜隨機獲得一隻新夥伴</small><button class="gold" onclick="buyItem('egg')">購買</button></div>
+ <div class="loot"><b>🧪</b><strong>生命藥水</strong><small>30 金幣｜答錯時可重新作答一次</small><button class="gold" onclick="buyItem('potion')">購買</button></div>
+ <div class="loot"><b>⚔️</b><strong>裝備寶箱</strong><small>150 金幣｜隨機獲得武器或防具</small><button class="gold" onclick="buyItem('gear')">購買</button></div>
+ <div class="loot"><b>🎁</b><strong>神秘寶箱</strong><small>200 金幣｜隨機獲得寵物或裝備</small><button class="gold" onclick="buyItem('chest')">購買</button></div>
+ </div><p id="shopMessage" class="notice"></p><p id="inventoryText" class="muted"></p><div class="btnrow"><button class="soft" onclick="goHome()">回冒險地圖</button><button class="soft" onclick="showCollection()">查看收藏</button></div>
 </section>
 
 <section id="collection" class="card hidden">
@@ -123,18 +134,24 @@ const thirdQuestions=[
 const petRewards=[{id:"fox",icon:"🦊",name:"森林小狐",desc:"第一關寶箱限定夥伴"},{id:"owl",icon:"🦉",name:"智慧貓頭鷹",desc:"勇者的學習夥伴"},{id:"slime",icon:"🟢",name:"果凍史萊姆",desc:"軟Q的森林居民"}];
 const gearRewards=[{id:"sword",icon:"🗡️",name:"勇者木劍"},{id:"shield",icon:"🛡️",name:"葉片盾牌"},{id:"gem",icon:"💎",name:"森林寶石"},{id:"mistcloak",icon:"🧥",name:"迷霧披風"}];
 const thirdPet={id:"mistdragon",icon:"🐉",name:"迷霧幼龍",desc:"第三關迷霧山谷限定夥伴"};
-const fresh={xp:0,coins:0,cleared:false,secondCleared:false,thirdCleared:false,pets:[],gear:[],best:0,best2:0,best3:0};
+const fresh={xp:0,coins:0,cleared:false,secondCleared:false,thirdCleared:false,pets:[],gear:[],best:0,best2:0,best3:0,potions:0,totalCorrect:0,dailyDate:"",dailyCount:0,dailyClaimed:false,lastVisit:"",streak:0,streakClaimed:false};
 let state;try{state={...fresh,...JSON.parse(localStorage.getItem("adventure_rpg_v1")||"{}")}}catch(e){state={...fresh}}
 let run=[],pos=0,score=0,answered=false,activeStage=1,activeQuestions=questions;
 const $=id=>document.getElementById(id);
-function persist(){localStorage.setItem("adventure_rpg_v1",JSON.stringify(state));stats()}
+function persist(){localStorage.setItem("adventure_rpg_v1",JSON.stringify(state));stats();refreshDaily()}
+function todayKey(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+function dayDiff(a,b){return Math.round((new Date(b+"T00:00:00")-new Date(a+"T00:00:00"))/86400000)}
+function visitToday(){const t=todayKey();if(state.lastVisit!==t){state.streak=state.lastVisit&&dayDiff(state.lastVisit,t)===1?(state.streak||0)+1:1;state.lastVisit=t;state.streakClaimed=false;}if(state.dailyDate!==t){state.dailyDate=t;state.dailyCount=0;state.dailyClaimed=false;}persist()}
+function refreshDaily(){if(!$('dailyText'))return;const n=Math.min(state.dailyCount||0,3);$('dailyText').textContent=`完成 3 題即可領取 20 金幣（今日進度 ${n}/3）。`;$('dailyClaim').disabled=n<3||state.dailyClaimed;$('dailyClaim').textContent=state.dailyClaimed?"今日已領取":"領取 20 金幣";$('streakText').textContent=`連續登入：${state.streak||0} 天｜連續 7 天可領取一顆寵物蛋。`;$('streakClaim').disabled=(state.streak||0)<7||state.streakClaimed;$('streakClaim').textContent=state.streakClaimed?"本週已領取":"領取七日寵物蛋";$('achievementText').textContent=`答對題數：${state.totalCorrect||0}/100。${(state.totalCorrect||0)>=100?"🏅 已達成百題小勇者成就！":"再累積答對題目，解鎖百題小勇者成就。"}`;}
+function claimDaily(){if(state.dailyCount<3||state.dailyClaimed)return;state.dailyClaimed=true;state.coins+=20;persist();alert("每日任務完成！獲得 20 金幣！")}
+function claimStreak(){if(state.streak<7||state.streakClaimed)return;state.streakClaimed=true;const available=petRewards.filter(p=>!state.pets.includes(p.id));if(available.length){const p=available[Math.floor(Math.random()*available.length)];state.pets.push(p.id);alert(`七日登入獎勵：獲得 ${p.icon}${p.name}！`)}else{state.coins+=100;alert("寵物已全數收集，改送 100 金幣！")}persist()}
 function stats(){$("xp").textContent=state.xp;$("coins").textContent=state.coins;$("level").textContent=Math.floor(state.xp/100)+1}
-function hideAll(){["home","game","result","collection","save"].forEach(id=>$(id).classList.add("hidden"))}
+function hideAll(){["home","game","result","collection","save","shop"].forEach(id=>$(id).classList.add("hidden"))}
 function goHome(){hideAll();$("home").classList.remove("hidden");stats();refreshMap()}
 function refreshMap(){
  const b2=$("stage2Button"),b3=$("stage3Button");
- if(state.cleared){b2.disabled=false;b2.style.opacity="1";b2.querySelector("strong").textContent="第二關：河谷寶藏 🔓";b2.querySelector("small").textContent="三年級數學・15 題・答對 12 題過關";}
- if(state.secondCleared){b3.disabled=false;b3.style.opacity="1";b3.querySelector("strong").textContent="第三關：迷霧山谷 🔓";b3.querySelector("small").textContent="三年級數學・15 題・答對 12 題過關";}
+ if(state.cleared){b2.disabled=false;b2.style.opacity="1";b2.querySelector("strong").textContent="第二關：河谷寶藏 🔓";b2.querySelector("small").textContent="三年級數學・15 題・答對 12 題過關｜可重複挑戰";}
+ if(state.secondCleared){b3.disabled=false;b3.style.opacity="1";b3.querySelector("strong").textContent="第三關：迷霧山谷 🔓";b3.querySelector("small").textContent="三年級數學・15 題・答對 12 題過關｜可重複挑戰";}
 }
 function startGame(stage=1){
  if(stage===2&&!state.cleared){alert("先通過第一關，才能解鎖河谷寶藏喔！");return;}
@@ -158,9 +175,9 @@ function choose(n){
  if(answered)return;answered=true;
  const q=run[pos],ok=n===q.c;
  [...$("answers").children].forEach((b,i)=>{b.disabled=true;if(i===q.c)b.classList.add("ok");else if(i===n)b.classList.add("bad")});
- if(ok){score++;state.xp+=10;state.coins+=3;$("feedback").textContent="🎉 答對了！+10 經驗值、+3 金幣";}
+ if(ok){score++;state.totalCorrect=(state.totalCorrect||0)+1;state.xp+=10;state.coins+=3;$("feedback").textContent="🎉 答對了！+10 經驗值、+3 金幣";}
  else{$("feedback").textContent="💡 再接再厲！正確答案是 "+ "ABCD"[q.c];}
- $("explain").textContent=q.e;persist();$("next").classList.remove("hidden");
+ if(!ok&&state.potions>0){const potion=document.createElement("button");potion.className="gold";potion.textContent=`🧪 使用生命藥水（剩餘 ${state.potions}）再答一次` ;potion.onclick=()=>{state.potions--;persist();answered=false;[...$("answers").children].forEach(b=>{b.disabled=false;b.classList.remove("ok","bad")});$("feedback").textContent="🧪 藥水生效！再選一次，這次仔細想想。";potion.remove();$("next").classList.add("hidden");$("explain").textContent="";};$("feedback").appendChild(potion);}if(state.dailyDate===todayKey()&&state.dailyCount<3)state.dailyCount++;$("explain").textContent=q.e;persist();$("next").classList.remove("hidden");
  $("next").textContent=pos===run.length-1?"查看魔王挑戰結果 ➜":"下一題 ➜";
 }
 function nextQuestion(){if(pos<run.length-1){pos++;draw()}else finish()}
@@ -183,7 +200,7 @@ function finish(){
    if(!state.gear.includes(g.id))state.gear.push(g.id);
    $("rewardText").textContent=`首次通關寶箱：🪙 ${bonusCoins} 金幣、⭐ ${bonusXp} 經驗值、${p.icon} ${p.name}、${g.icon} ${g.name}。`;
   }else{
-   $("rewardText").textContent="你再次成功通關！本次答題經驗值與金幣已保存，首次通關寶箱已領取過。";
+   $("rewardText").textContent="你再次成功通關！每次答題仍可累積經驗值與金幣；首次通關的寶箱收藏不會重複發放。";
   }
   $("resultEmoji").textContent="🏆";
   $("resultTitle").textContent=activeStage===1?"太厲害了！擊敗森林魔王！":(activeStage===2?"太厲害了！找到河谷寶藏！":"太厲害了！突破迷霧山谷！");
@@ -196,10 +213,12 @@ function finish(){
  }
  persist();refreshMap();
 }
+function showShop(){hideAll();$("shop").classList.remove("hidden");$("shopMessage").textContent="挑選想購買的商品吧！";$("inventoryText").textContent=`目前金幣：${state.coins}｜生命藥水：${state.potions||0} 瓶`;}
+function buyItem(type){const prices={egg:100,potion:30,gear:150,chest:200},price=prices[type];if(state.coins<price){$("shopMessage").textContent=`金幣不足，還差 ${price-state.coins} 枚。`;return;}state.coins-=price;let msg="";if(type==="potion"){state.potions=(state.potions||0)+1;msg="🧪 生命藥水 +1！答錯時可重新作答一次。";}else if(type==="egg"){const pool=petRewards.filter(x=>!state.pets.includes(x.id));if(pool.length){const p=pool[Math.floor(Math.random()*pool.length)];state.pets.push(p.id);msg=`🥚 孵化成功！獲得 ${p.icon}${p.name}！`;}else{state.coins+=70;msg="寵物已收集齊全，寵物蛋轉換為 70 金幣。";}}else if(type==="gear"){const pool=gearRewards.filter(x=>!state.gear.includes(x.id));if(pool.length){const g=pool[Math.floor(Math.random()*pool.length)];state.gear.push(g.id);msg=`🎉 開出裝備：${g.icon}${g.name}！`;}else{state.coins+=100;msg="裝備已收集齊全，寶箱轉換為 100 金幣。";}}else{const pool=Math.random()<.5?petRewards.filter(x=>!state.pets.includes(x.id)):gearRewards.filter(x=>!state.gear.includes(x.id));if(pool.length){const item=pool[Math.floor(Math.random()*pool.length)];if(item.id==="fox"||item.id==="owl"||item.id==="slime")state.pets.push(item.id);else state.gear.push(item.id);msg=`🎁 神秘寶箱開出：${item.icon}${item.name}！`;}else{state.coins+=100;msg="收藏已齊全，神秘寶箱轉換為 100 金幣。";}}persist();$("shopMessage").textContent=msg;$("inventoryText").textContent=`目前金幣：${state.coins}｜生命藥水：${state.potions||0} 瓶`;}
 function showCollection(){hideAll();$("collection").classList.remove("hidden");$("pets").innerHTML=petRewards.map(x=>`<div class="loot"><b>${state.pets.includes(x.id)?x.icon:"❔"}</b><strong>${state.pets.includes(x.id)?x.name:"尚未收集"}</strong><small>${x.desc}</small></div>`).join("");$("gear").innerHTML=gearRewards.map(x=>`<div class="loot"><b>${state.gear.includes(x.id)?x.icon:"❔"}</b><strong>${state.gear.includes(x.id)?x.name:"尚未收集"}</strong></div>`).join("")}
 function showSave(){hideAll();$("save").classList.remove("hidden")}
 function exportSave(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="冒險學園存檔.json";a.click();URL.revokeObjectURL(url)}
 function importSave(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(typeof d.xp!=="number"||typeof d.coins!=="number"||!Array.isArray(d.pets)||!Array.isArray(d.gear))throw Error();state={...fresh,...d};persist();alert("存檔匯入成功！");goHome()}catch(e){alert("這個存檔檔案格式不正確，請選擇冒險學園匯出的 JSON 檔。")}ev.target.value=""};r.readAsText(f)}
-stats();refreshMap();
+visitToday();stats();refreshMap();refreshDaily();
 </script>
 </body></html>
