@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#172554">
+<title>四年級冒險學園</title>
+<style>
+:root{--navy:#172554;--blue:#2563eb;--sky:#dbeafe;--gold:#fbbf24;--ink:#172033;--muted:#64748b;--paper:#fff;--bg:#eef4ff;--green:#16a34a;--red:#dc2626}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#dbeafe,#f8fafc 45%,#fef3c7);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;color:var(--ink);min-height:100vh}
+header{background:var(--navy);color:white;padding:18px 16px 22px;text-align:center}
+header h1{margin:0;font-size:clamp(25px,5vw,38px)}header p{margin:7px 0 0;color:#bfdbfe}
+.wrap{max-width:980px;margin:0 auto;padding:16px}
+.stats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:-8px auto 16px}
+.stat{background:white;border:2px solid #bfdbfe;border-radius:16px;padding:9px 15px;font-weight:800;box-shadow:0 4px 0 #cbd5e1}
+h2{margin:14px 0 10px;font-size:22px}
+.worlds{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.world{border:0;border-radius:20px;padding:18px;text-align:left;cursor:pointer;min-height:142px;box-shadow:0 5px 0 rgba(15,23,42,.13);transition:.15s;color:#172033}
+.world:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(15,23,42,.13)}
+.world .emoji{font-size:35px}.world strong{display:block;font-size:20px;margin:6px 0}.world small{font-size:14px;color:#334155}
+.chinese{background:#fee2e2}.math{background:#dbeafe}.science{background:#dcfce7}.social{background:#fef3c7}
+.panel{background:white;border:2px solid #dbeafe;border-radius:22px;padding:20px;margin-top:16px;box-shadow:0 8px 24px #1e3a8a12}
+.hidden{display:none!important}.topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+button{font:inherit}.back,.secondary{border:0;background:#e2e8f0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer}
+.progress{height:12px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin:14px 0}.bar{height:100%;background:linear-gradient(90deg,#22c55e,#84cc16);width:0;transition:width .2s}
+.tag{display:inline-block;background:#eff6ff;color:#1d4ed8;border-radius:99px;padding:5px 10px;font-weight:800;font-size:13px}
+.question{font-size:clamp(21px,4vw,28px);font-weight:900;line-height:1.45;margin:18px 0}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.answer{background:#f8fafc;border:2px solid #cbd5e1;border-radius:15px;padding:14px;text-align:left;font-size:17px;font-weight:750;cursor:pointer;min-height:60px}
+.answer:hover{border-color:#60a5fa;background:#eff6ff}.answer:disabled{cursor:default;opacity:1}
+.answer.correct{background:#dcfce7;border-color:#22c55e}.answer.wrong{background:#fee2e2;border-color:#ef4444}
+.feedback{font-weight:800;font-size:17px;min-height:30px;margin:14px 0 6px}.next{background:var(--blue);color:white;border:0;border-radius:14px;padding:13px 22px;font-weight:900;font-size:17px;cursor:pointer}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.note{color:var(--muted);font-size:13px;line-height:1.6;margin:18px 2px}
+.wrongitem{padding:10px;border-bottom:1px solid #e2e8f0}.wrongitem:last-child{border:0}
+@media(max-width:560px){.answers{grid-template-columns:1fr}.wrap{padding:12px}.panel{padding:16px}}
+</style>
+</head>
+<body>
+<header><h1>🧭 四年級冒險學園</h1><p>把課本變成任務！答題闖關、累積金幣、練習錯題。</p></header>
+<div class="wrap">
+  <div class="stats">
+    <div class="stat">⭐ 經驗值：<span id="xp">0</span></div>
+    <div class="stat">🪙 金幣：<span id="coins">0</span></div>
+    <div class="stat">🏅 等級：<span id="level">1</span></div>
+  </div>
+  <section id="home">
+    <h2>選擇冒險世界</h2>
+    <div class="worlds">
+      <button class="world chinese" onclick="start('chinese')"><span class="emoji">📚</span><strong>國語王國</strong><small>康軒｜詞語、成語、閱讀理解</small></button>
+      <button class="world math" onclick="start('math')"><span class="emoji">🚀</span><strong>數學星球</strong><small>翰林｜計算、角度、數量關係</small></button>
+      <button class="world science" onclick="start('science')"><span class="emoji">🧪</span><strong>自然實驗室</strong><small>康軒｜自然觀察與科學概念</small></button>
+      <button class="world social" onclick="start('social')"><span class="emoji">🗺️</span><strong>社會探險島</strong><small>南一｜地圖、生活與地方特色</small></button>
+    </div>
+    <div class="panel">
+      <div class="topline"><h2 style="margin:0">📒 我的錯題收藏</h2><button class="secondary" onclick="clearWrong()">清除錯題</button></div>
+      <p id="wrongCount">目前還沒有錯題，繼續探索吧！</p>
+      <div id="wrongList"></div>
+      <div class="actions"><button class="next" onclick="reviewWrong()">重新挑戰錯題</button><button class="secondary" onclick="resetProgress()">重設全部進度</button></div>
+    </div>
+    <p class="note">版本：試玩版 0.1｜題目為四年級程度示範題，尚非各校正式段考範圍。課本版本已依照設定：國語康軒、數學翰林、自然康軒、社會南一。遊戲紀錄保存在目前這台裝置的瀏覽器中。</p>
+  </section>
+  <section id="game" class="panel hidden">
+    <div class="topline"><button class="back" onclick="goHome()">← 回冒險地圖</button><span class="tag" id="subjectTag"></span><span class="tag" id="counter"></span></div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div class="question" id="question"></div>
+    <div class="answers" id="answers"></div>
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+    <div class="topline"><span id="explain" style="color:#475569;line-height:1.5"></span><button id="next" class="next hidden" onclick="nextQuestion()">下一題 ➜</button></div>
+  </section>
+  <section id="result" class="panel hidden">
+    <h2>🎉 任務完成！</h2><p id="resultText" style="font-size:20px;font-weight:850"></p>
+    <p id="resultSub"></p><button class="next" onclick="goHome()">回冒險地圖</button>
+  </section>
+</div>
+<script>
+const bank={
+chinese:{name:"📚 國語王國",qs:[
+{q:"「五彩繽紛」最適合形容什麼？",a:["天空中的烏雲","花園裡各種顏色的花","安靜的圖書館","一張白紙"],c:1,e:"「五彩」指多種顏色，「繽紛」形容繁多而美麗。"},
+{q:"「守株待兔」主要是在提醒我們什麼？",a:["做事要靠努力，不能只想著僥倖","兔子跑得很快","樹木需要照顧","要常常到田裡散步"],c:0,e:"這個成語比喻不主動努力，只想靠運氣得到成果。"},
+{q:"哪一句使用了譬喻？",a:["弟弟正在看書。","月亮像一艘小船，掛在夜空中。","今天下了雨。","我們一起回家。"],c:1,e:"用「像」把月亮比作小船，是譬喻的寫法。"},
+{q:"閱讀：小安每天替陽台的植物澆水，也記錄葉子的變化。這段話最能看出小安有什麼特質？",a:["粗心","有耐心、會觀察","不喜歡植物","做事急躁"],c:1,e:"每天照顧並記錄變化，表示他有耐心且善於觀察。"}
+]},
+math:{name:"🚀 數學星球",qs:[
+{q:"3,406 + 2,785 = ?",a:["6,091","6,191","6,291","5,191"],c:1,e:"個位 6+5=11，十位 0+8+1=9，百位 4+7=11，千位 3+2+1=6，所以是 6,191。"},
+{q:"一個平角是幾度？",a:["90 度","180 度","270 度","360 度"],c:1,e:"平角看起來像一條直線，角度是 180 度。"},
+{q:"一盒彩色筆有 24 枝，買 3 盒共有幾枝？",a:["62 枝","68 枝","72 枝","84 枝"],c:2,e:"24 × 3 = 72 枝。"},
+{q:"下面哪個數字最接近 5,000？",a:["4,509","5,480","5,650","4,300"],c:1,e:"5,480 與 5,000 相差 480，是選項中差距最小的。"}
+]},
+science:{name:"🧪 自然實驗室",qs:[
+{q:"植物的根通常有什麼功能？",a:["吸收水分和固定植物","製造種子","幫植物聽聲音","讓植物移動"],c:0,e:"根能吸收水分，也能抓住土壤，幫助植物固定。"},
+{q:"觀察一天中太陽在天空的位置，通常會發現太陽看起來如何移動？",a:["由西向東","由東向西","一直停在正上方","由北向南直線落下"],c:1,e:"從地面觀察，太陽看起來大致由東方升起、向西方移動。"},
+{q:"下列哪一種做法最適合公平比較兩種紙張的吸水能力？",a:["使用不同大小的紙","每種紙滴上相同滴數的水","一種放室外、一種放室內","只觀察紙張顏色"],c:1,e:"公平比較時，要控制其他條件相同，例如紙張大小與水滴數量。"},
+{q:"磁鐵的哪個部位通常吸引力較強？",a:["正中央","兩端的磁極","整片都完全相同","沒有吸引力"],c:1,e:"磁鐵兩端的磁極通常有較強的磁力。"}
+]},
+social:{name:"🗺️ 社會探險島",qs:[
+{q:"地圖上的圖例主要有什麼用途？",a:["說明地圖符號代表的意思","表示今天的天氣","計算人口年齡","裝飾地圖邊框"],c:0,e:"圖例會說明地圖上的線條、顏色和符號代表什麼。"},
+{q:"在地圖上，通常用什麼表示方向？",a:["比例尺","指北針或方向標","圖例","地名"],c:1,e:"方向標可以幫助我們辨認東、西、南、北。"},
+{q:"想知道兩個地方在地圖上的實際距離，應該參考什麼？",a:["地圖顏色","比例尺","標題字體","圖例順序"],c:1,e:"比例尺表示地圖距離和實際距離的比例關係。"},
+{q:"下列哪一項最能表現地方的特色？",a:["每個地方都完全一樣","當地的自然環境、產業與文化","只有道路名稱","只有人口數字"],c:1,e:"地方特色可能來自自然環境、產業活動、歷史和文化。"}
+]}
+};
+let state=load(), current=[], index=0, score=0, subject="", answered=false, reviewMode=false;
+function load(){try{return JSON.parse(localStorage.getItem("adventure4save"))||{xp:0,coins:0,wrong:[]}}catch(e){return{xp:0,coins:0,wrong:[]}}}
+function save(){localStorage.setItem("adventure4save",JSON.stringify(state));renderStats();renderWrong()}
+function renderStats(){document.getElementById("xp").textContent=state.xp;document.getElementById("coins").textContent=state.coins;document.getElementById("level").textContent=Math.floor(state.xp/50)+1}
+function renderWrong(){document.getElementById("wrongCount").textContent=state.wrong.length?`收藏了 ${state.wrong.length} 題，複習一下會更熟練！`:"目前還沒有錯題，繼續探索吧！";document.getElementById("wrongList").innerHTML=state.wrong.slice(0,5).map(x=>`<div class="wrongitem">• ${esc(x.q)}</div>`).join("")}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function start(s){subject=s;reviewMode=false;current=bank[s].qs.map((q,i)=>({...q,key:s+"-"+i}));index=0;score=0;showGame();draw()}
+function reviewWrong(){if(!state.wrong.length){alert("目前沒有錯題喔！");return}subject="review";reviewMode=true;current=state.wrong.map((q,i)=>({...q,key:q.key||"wrong-"+i}));index=0;score=0;showGame();draw()}
+function showGame(){document.getElementById("home").classList.add("hidden");document.getElementById("result").classList.add("hidden");document.getElementById("game").classList.remove("hidden")}
+function draw(){answered=false;let q=current[index];document.getElementById("subjectTag").textContent=reviewMode?"📒 錯題複習":bank[subject].name;document.getElementById("counter").textContent=`第 ${index+1} / ${current.length} 題`;document.getElementById("bar").style.width=(index/current.length*100)+"%";document.getElementById("question").textContent=q.q;document.getElementById("feedback").textContent="";document.getElementById("explain").textContent="";document.getElementById("next").classList.add("hidden");let box=document.getElementById("answers");box.innerHTML="";q.a.forEach((a,i)=>{let b=document.createElement("button");b.className="answer";b.textContent=String.fromCharCode(65+i)+"．"+a;b.onclick=()=>choose(i);box.appendChild(b)})}
+function choose(n){if(answered)return;answered=true;let q=current[index],buttons=[...document.querySelectorAll(".answer")],ok=n===q.c;buttons.forEach((b,i)=>{b.disabled=true;if(i===q.c)b.classList.add("correct");else if(i===n)b.classList.add("wrong")});let fb=document.getElementById("feedback");fb.textContent=ok?"🎉 答對了！獲得 10 點經驗值和 5 枚金幣。":"💡 再接再厲！正確答案已標示，看看解說吧。";fb.style.color=ok?"#15803d":"#b91c1c";document.getElementById("explain").textContent=q.e;document.getElementById("next").classList.remove("hidden");if(ok){score++;state.xp+=10;state.coins+=5;if(reviewMode)state.wrong=state.wrong.filter(x=>x.key!==q.key)}else if(!state.wrong.some(x=>x.key===q.key)){state.wrong.push({...q})}save()}
+function nextQuestion(){index++;if(index<current.length)draw();else{document.getElementById("game").classList.add("hidden");document.getElementById("result").classList.remove("hidden");document.getElementById("resultText").textContent=`答對 ${score} / ${current.length} 題！`;document.getElementById("resultSub").textContent=score===current.length?"完美通關！你是今天的冒險王！":"任務完成！錯題已經幫你收藏，下次再來挑戰。";document.getElementById("bar").style.width="100%";save()}}
+function goHome(){document.getElementById("game").classList.add("hidden");document.getElementById("result").classList.add("hidden");document.getElementById("home").classList.remove("hidden");renderStats();renderWrong()}
+function clearWrong(){if(confirm("確定清除所有錯題收藏嗎？")){state.wrong=[];save()}}
+function resetProgress(){if(confirm("確定重設經驗值、金幣和錯題嗎？")){state={xp:0,coins:0,wrong:[]};save()}}
+renderStats();renderWrong();
+</script>
+</body>
+</html>
